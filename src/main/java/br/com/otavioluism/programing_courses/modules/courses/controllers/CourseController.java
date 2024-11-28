@@ -3,9 +3,11 @@ package br.com.otavioluism.programing_courses.modules.courses.controllers;
 
 import br.com.otavioluism.programing_courses.modules.courses.dto.DeleteResponseDTO;
 import br.com.otavioluism.programing_courses.modules.courses.entity.CourseEntity;
+import br.com.otavioluism.programing_courses.modules.courses.exceptions.CourseNotFoundException;
 import br.com.otavioluism.programing_courses.modules.courses.useCases.CreateCourseUseCase;
 import br.com.otavioluism.programing_courses.modules.courses.useCases.DeleteCourseUseCase;
 import br.com.otavioluism.programing_courses.modules.courses.useCases.ListCourseUseCase;
+import br.com.otavioluism.programing_courses.modules.courses.useCases.UpdateActivityCourseUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,9 @@ public class CourseController {
 
     @Autowired
     private DeleteCourseUseCase deleteCourseUseCase;
+
+    @Autowired
+    private UpdateActivityCourseUseCase updateActivityCourseUseCase;
 
     @PostMapping("/")
     public ResponseEntity<Object> create(@RequestBody CourseEntity courseEntity) {
@@ -59,6 +64,18 @@ public class CourseController {
             return ResponseEntity.ok().body(responseDTO);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Object> patch(@PathVariable UUID id) {
+        try {
+            var course = this.updateActivityCourseUseCase.execute(id);
+            return ResponseEntity.ok().body(course);
+        } catch (CourseNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 }
